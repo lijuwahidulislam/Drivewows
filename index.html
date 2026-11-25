@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Bangladesh Open World Driving Simulator — v3</title>
+<title>Bangladesh Open World Driving Simulator</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:100%;height:100%;overflow:hidden;background:#0b1220;font-family:'Segoe UI',Roboto,system-ui,sans-serif;color:#fff}
@@ -23,7 +23,7 @@ canvas{display:block}
 .menu .sub{font-size:12px;opacity:.6;margin-bottom:18px}
 .ctl{margin-bottom:14px}
 .ctl label{display:block;font-size:11px;letter-spacing:1px;text-transform:uppercase;opacity:.6;margin-bottom:5px}
-.ctl input,.ctl select{width:100%;padding:10px 12px;border-radius:9px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fff;font-size:14px;outline:none}
+.ctl select{width:100%;padding:10px 12px;border-radius:9px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fff;font-size:14px;outline:none}
 .btn{width:100%;margin-top:8px;padding:13px;border:0;border-radius:11px;background:linear-gradient(90deg,#f5a623,#f2c94c);color:#1a1200;font-size:16px;font-weight:800;cursor:pointer;letter-spacing:1px}
 .btn:hover{filter:brightness(1.08)}
 .keys{margin-top:16px;font-size:11.5px;line-height:1.7;opacity:.7;border-top:1px solid rgba(255,255,255,.12);padding-top:12px}
@@ -45,7 +45,7 @@ canvas{display:block}
 <body>
 <div id="ui"><div class="menu">
  <h1>🇧🇩 Bangladesh Open World</h1>
- <div class="sub">Realistic 3D Driving Simulator — v3 (Bug-fixed)</div>
+ <div class="sub">Realistic 3D Driving Simulator</div>
  <div class="ctl"><label>Vehicle</label><select id="vehSel"></select></div>
  <div class="ctl"><label>Environment</label><select id="envSel">
    <option value="village">Bangladeshi Village</option>
@@ -72,7 +72,7 @@ canvas{display:block}
  <button id="playBtn" class="btn">▶ START ENGINE</button>
  <div class="keys">
   <b>Desktop:</b> W/↑ accelerate · S/↓ brake/reverse · A/D steer · Space handbrake<br>
-  C camera · H horn · L headlights · T day-night · R reset · F fullscreen · Esc menu<br>
+  C camera · H horn · L headlights · T day-night · Y rain · R reset · F fullscreen · Esc pause<br>
   <b>Mobile:</b> on-screen buttons. To allow sound, tap Start after loading.
  </div>
 </div></div>
@@ -93,15 +93,8 @@ canvas{display:block}
  <div class="tbtn" id="tHorn">📣</div>
  <div class="tbtn" id="tReset">↺</div>
 </div>
-<script> (function(){
-"use strict";
-var IS_TOUCH=('ontouchstart' in window);
-if(IS_TOUCH)document.getElementById('touch').classList.add('show');
-})();
-</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-/* ===== BANGLADESH OPEN WORLD DRIVING SIMULATOR v3 (bug-fixed) ===== */
 (function(){
 "use strict";
 var G={};
@@ -115,6 +108,7 @@ G.renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 document.body.appendChild(G.renderer.domElement);
 G.clock=new THREE.Clock();
 G.keys={}; G.pressed={}; G.isTouch=('ontouchstart' in window);
+if(G.isTouch)document.getElementById('touch').classList.add('show');
 G.day=0.75; G.rainW=false; G.lightsOn=true; G.paused=true; G.started=false;
 G.cam=0; G.msgT=0; G.gfx='med'; G.mode='free';
 G.q={low:[0,0.2,5],med:[1,0.5,8],high:[1,1,10],ultra:[1,1.2,12]};
@@ -150,7 +144,7 @@ function handleKey(code){
  if(code==='KeyH')horn();
  if(code==='KeyL'){G.lightsOn=!G.lightsOn;setLights();showMsg(G.lightsOn?'Headlights ON':'Headlights OFF');}
  if(code==='KeyT')cycleDay();
- if(code==='KeyY'){G.rainW=!G.rainW; setRainAudio(G.rainW); if(G.rainW){buildRain();} showMsg(G.rainW?'Rain':'Clear');}
+ if(code==='KeyY'){G.rainW=!G.rainW; setRainAudio(G.rainW); if(G.rainW)buildRain(); showMsg(G.rainW?'Rain':'Clear');}
  if(code==='KeyR')resetVehicle();
  if(code==='KeyF')toggleFull();
  if(code==='Escape')togglePause();
@@ -158,8 +152,8 @@ function handleKey(code){
 var AC=null, engineOsc=null, engineGain=null, rainSrc=null, rainGain=null;
 function initAudio(){ if(AC)return; try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){return;} engineGain=AC.createGain(); engineGain.gain.value=0; engineGain.connect(AC.destination); engineOsc=AC.createOscillator(); engineOsc.type='sawtooth'; engineOsc.frequency.value=50; engineOsc.connect(engineGain); engineOsc.start(); }
 function updateEngine(speed,top){ if(!AC)return; var r=Math.min(1,Math.max(0,speed/top)); engineOsc.frequency.value=45+r*160; engineGain.gain.value=r*0.10; }
-function setRainAudio(on){ if(!AC){initAudio();} if(!AC)return; if(!rainSrc){ rainGain=AC.createGain(); rainGain.gain.value=0; rainGain.connect(AC.destination); rainSrc=AC.createBufferSource(); var b=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate); var d=b.getChannelData(0); for(var i=0;i<d.length;i++)d[i]=Math.random()*2-1; rainSrc.buffer=b; rainSrc.loop=true; rainSrc.connect(rainGain); rainSrc.start(); } rainGain.gain.value=on?0.08:0; }
-function horn(){ if(!AC){initAudio();} if(!AC)return; try{ var o=AC.createOscillator(); o.type='square'; o.frequency.value=440; var hg=AC.createGain(); hg.gain.value=0.06; o.connect(hg); hg.connect(AC.destination); o.start(); setTimeout(function(){try{o.stop();}catch(e){}},250); }catch(e){} }
+function setRainAudio(on){ if(!AC)initAudio(); if(!AC)return; if(!rainSrc){ rainGain=AC.createGain(); rainGain.gain.value=0; rainGain.connect(AC.destination); rainSrc=AC.createBufferSource(); var b=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate); var d=b.getChannelData(0); for(var i=0;i<d.length;i++)d[i]=Math.random()*2-1; rainSrc.buffer=b; rainSrc.loop=true; rainSrc.connect(rainGain); rainSrc.start(); } rainGain.gain.value=on?0.08:0; }
+function horn(){ if(!AC)initAudio(); if(!AC)return; try{ var o=AC.createOscillator(); o.type='square'; o.frequency.value=440; var hg=AC.createGain(); hg.gain.value=0.06; o.connect(hg); hg.connect(AC.destination); o.start(); setTimeout(function(){try{o.stop();}catch(e){}},250); }catch(e){} }
 function showMsg(t){ var m=document.getElementById('msg'); m.textContent=t; m.style.opacity=1; clearTimeout(G.msgT); G.msgT=setTimeout(function(){m.style.opacity=0;},2200); }
 function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
 function vec(x,y,z){return new THREE.Vector3(x,y,z);}
@@ -220,7 +214,7 @@ function buildRoads(){
 function pathPos(i){ var n=G.pts.length; var A=G.pts[i%n],B=G.pts[(i+1)%n]; var d=vec().subVectors(B,A); var L=d.length(); return {A:A,B:B,dir:d.normalize(),L:Math.max(L,0.001)}; }
 function clearEnv(){ ['buildings','trees','decor'].forEach(function(k){ while(G[k].children.length)G[k].remove(G[k].children[0]); }); G.peds.length=0; G.streetLights.length=0; removeCheckpoint(); }
 function removeCheckpoint(){ if(G.checkpoint){G.scene.remove(G.checkpoint);G.checkpoint=null;} G.taskDone=false; }
-function buildCheckpoint(){ var g=new THREE.Group(); var beacon=addMesh(new THREE.CylinderGeometry(1.2,1.2,0.4,20),new THREE.MeshBasicMaterial({color:0xffe14a,transparent:true,opacity:0.9}),g,0,1.5,0); addMesh(new THREE.CylinderGeometry(0.15,0.15,3,8),mat(0x444),g,0,1.5,0); G.checkpoint=g; G.checkpoint.position.set(150,0,120); G.scene.add(g); }
+function buildCheckpoint(){ var g=new THREE.Group(); addMesh(new THREE.CylinderGeometry(1.2,1.2,0.4,20),new THREE.MeshBasicMaterial({color:0xffe14a,transparent:true,opacity:0.9}),g,0,1.5,0); addMesh(new THREE.CylinderGeometry(0.15,0.15,3,8),mat(0x444),g,0,1.5,0); G.checkpoint=g; G.checkpoint.position.set(150,0,120); G.scene.add(g); }
 function buildCity(){ clearEnv(); if(G.rainPts){G.scene.remove(G.rainPts);G.rainPts=null;} var cx=[-90,0,90,-140,140,-45,45]; var cz=[-90,-40,40,90,-110,110,0]; for(var i=0;i<cx.length;i++){ makeBuilding(16+Math.random()*14,16+Math.random()*14,20+Math.random()*50,'#b0a99a','#e0d6c0',G.buildings,cx[i],cz[i],Math.random()*Math.PI); if(G.gfx!=='low'&&i<5)makeBuilding(12,12,30,'#a89f8f',null,G.buildings,cx[i]+22,cz[i]+18,Math.random()); } for(var s=0;s<6;s++){ var a=Math.random()*Math.PI*2, r=60+Math.random()*40; makeStreetLight(G.decor,Math.cos(a)*r,Math.sin(a)*r); } for(var p=0;p<5;p++){ var a2=Math.random()*Math.PI*2,r2=50+Math.random()*60; makePedestrian(G.decor,Math.cos(a2)*r2,Math.sin(a2)*r2,Math.random()<0.5?-1:1); } document.getElementById('envTag').textContent='City Roads'; }
 function buildVillage(){ clearEnv(); if(G.rainPts){G.scene.remove(G.rainPts);G.rainPts=null;} for(var i=0;i<12;i++){ var a=Math.random()*Math.PI*2, r=70+Math.random()*120; makeBuilding(8+Math.random()*4,8+Math.random()*4,6+Math.random()*4,'#d6c9a8','#e8dcc0',G.buildings,Math.cos(a)*r,Math.sin(a)*r,Math.random()*3); } for(var t=0;t<40;t++){ var a2=Math.random()*Math.PI*2,r2=40+Math.random()*220; makeTree(G.trees,Math.cos(a2)*r2,Math.sin(a2)*r2,0.8+Math.random()*1.5); } addMesh(new THREE.CircleGeometry(18,24),new THREE.MeshLambertMaterial({color:0x2a6a8a,transparent:true,opacity:0.85}),G.decor,60,0.08,70,-Math.PI/2);
  addMesh(new THREE.BoxGeometry(6,0.5,16),mat(0x6b4f33),G.decor,60,0.35,70);
@@ -254,7 +248,7 @@ function updateTimed(dt){ if(G.mode!=='timed'||G.taskDone)return; var tEl=docume
 function updateCamera(){ var pl=G.player, p=pl.group.position, h=pl.heading; var fwd=vec(Math.sin(h),0,Math.cos(h)); var camH=pl.camH||1.6; var target=vec(); if(G.cam===0){ target.copy(p).addScaledVector(fwd,-9).y=camH+1.6; } else if(G.cam===1){ target.copy(p).addScaledVector(fwd,-3.5).y=camH+0.6; } else if(G.cam===2){ var right=vec(Math.cos(h),0,-Math.sin(h)); target.copy(p).addScaledVector(fwd,6).addScaledVector(right,3).y=camH+1.2; } else if(G.cam===3){ var right2=vec(Math.cos(h),0,-Math.sin(h)); target.copy(p).addScaledVector(right2,5).y=camH+1.3; } else { target.copy(p).addScaledVector(fwd,0.4).y=camH-0.3; } G.camera.position.lerp(target,0.08); if(G.cam===4){ var look=vec().copy(p).addScaledVector(fwd,40); look.y=camH-0.2; G.camera.lookAt(look); } else { G.camera.lookAt(p.x,p.y+1,p.z); } }
 function updateSky(){ var d=G.day, r=G.rainW; var sky=new THREE.Color().lerpColors(new THREE.Color(0x0a0f1e),new THREE.Color(0xbfd9ff),d); G.scene.background=sky; G.scene.fog.color=sky; G.sun.intensity=0.4+1.4*d; G.hemi.intensity=0.3+0.8*d; G.sun.position.y=60+180*d; G.groundMat.color.setHex(r?0x3a5a2f:0xffffff); setLights(); }
 function loop(){ requestAnimationFrame(loop); var dt=Math.min(G.clock.getDelta(),0.05); if(!G.paused){ updatePhysics(dt); updateTraffic(dt); updatePedestrians(dt); updateTimed(dt); if(G.rainW)updateRain(dt); } updateSky(); updateCamera(); G.renderer.render(G.scene,G.camera); }
-function bindControls(){ var c=G.controls; function kd(){ var ui=document.getElementById('ui'); if(ui.style.display!=='none')return; c.thr=(G.keys.KeyW||G.keys.ArrowUp)?1:0; c.brk=(G.keys.KeyS||G.keys.ArrowDown)?1:0; c.steer=((G.keys.KeyA||G.keys.ArrowLeft)?-1:0)+((G.keys.KeyD||G.keys.ArrowRight)?1:0); c.hb=!!G.keys.Space; } setInterval(kd,30); if(G.isTouch){ var bind=function(id,prop,val){ var el=document.getElementById(id); el.addEventListener('pointerdown',function(e){e.preventDefault();c[prop]=val;initAudio();}); el.addEventListener('pointerup',function(){c[prop]=0;}); el.addEventListener('pointerleave',function(){c[prop]=0;}); }; bind('tLeft','steer',-1); bind('tRight','steer',1); bind('tGas','thr',1); bind('tBrake','brk',1); document.getElementById('tCam').addEventListener('pointerdown',function(){G.cam=(G.cam+1)%5;showMsg('Camera '+(G.cam+1));}); document.getElementById('tHorn').addEventListener('pointerdown',horn); document.getElementById('tReset').addEventListener('pointerdown',resetVehicle); } }
+function bindControls(){ var c=G.controls; function kd(){ var ui=document.getElementById('ui'); if(ui.style.display!=='none')return; c.thr=(G.keys.KeyW||G.keys.ArrowUp)?1:0; c.brk=(G.keys.KeyS||G.keys.ArrowDown)?1:0; c.steer=((G.keys.KeyA||G.keys.ArrowLeft)?-1:0)+((G.keys.KeyD||G.keys.ArrowRight)?1:0); c.hb=!!G.keys.Space; } setInterval(kd,30); }
 function setupMenu(){ var vSel=document.getElementById('vehSel'); ['sedan','sports','suv','micro','bus','truck','pickup','bike','cng','rickshaw','tractor'].forEach(function(k){ var o=document.createElement('option'); o.value=k; o.textContent=SPECS[k].name; vSel.appendChild(o); }); document.getElementById('full').addEventListener('click',toggleFull); document.getElementById('playBtn').addEventListener('click',function(){ initAudio(); G.gfx=document.getElementById('gfxSel').value; var q=G.q[G.gfx]||G.q.med; G.renderer.setPixelRatio(Math.min(devicePixelRatio,q[1]*2)); G.sun.shadow.mapSize.set(q[2]*2048,q[2]*2048); G.sun.castShadow=G.gfx!=='low'; G.day=0.75; G.rainW=false; setRainAudio(false); var wx=document.getElementById('wxSel').value; if(wx==='rain'){G.rainW=true;buildRain();setRainAudio(true);} if(wx==='night')G.day=0.15; var env=document.getElementById('envSel').value, veh=vSel.value; G.mode=document.getElementById('modeSel').value; stopTimeTrial(); (env==='village')&&buildVillage(); (env==='city')&&buildCity(); (env==='coastal')&&buildCoastal(); (env==='hill')&&buildHill(); buildVehicle(veh); spawnTraffic(G.mode==='traffic'?14:6); if(G.mode==='timed')startTimeTrial(); resetVehicle(); document.getElementById('ui').style.display='none'; G.started=true; G.paused=false; setLights(); showMsg('Driving: '+SPECS[veh].name); }); }
 buildTerrain(); buildRoads(); buildVillage(); buildVehicle('sedan'); spawnTraffic(6); setupMenu(); bindControls(); setLights(); updateSky(); G.paused=true; loop();
 })();
