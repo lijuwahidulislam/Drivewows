@@ -1,1 +1,241 @@
-placeholder
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ScanFree - Free Online Document Scanner and PDF Maker</title>
+<meta name="description" content="Scan documents with your camera, enhance pages, combine multiple pages, and create PDFs for free without signing up.">
+<meta property="og:title" content="ScanFree - Free Online Document Scanner and PDF Maker">
+<meta property="og:description" content="Scan documents with your camera, enhance pages, combine multiple pages, and create PDFs for free without signing up.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ScanFree">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#1d4ed8">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to main content</a>
+<header class="top">
+  <a class="brand" href="index.html" aria-label="ScanFree home">
+    <svg width="30" height="30" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="110" fill="#1d4ed8"/><rect x="118" y="118" width="104" height="30" rx="10" fill="#fff"/><rect x="118" y="118" width="30" height="104" rx="10" fill="#fff"/><rect x="290" y="118" width="104" height="30" rx="10" fill="#fff"/><rect x="364" y="118" width="30" height="104" rx="10" fill="#fff"/><rect x="118" y="364" width="104" height="30" rx="10" fill="#fff"/><rect x="118" y="290" width="30" height="104" rx="10" fill="#fff"/><rect x="290" y="364" width="104" height="30" rx="10" fill="#fff"/><rect x="364" y="290" width="30" height="104" rx="10" fill="#fff"/><rect x="196" y="168" width="120" height="24" rx="12" fill="#fff"/><rect x="196" y="228" width="120" height="24" rx="12" fill="#fff"/><rect x="196" y="288" width="72" height="24" rx="12" fill="#fff"/></svg>
+    <span><span class="brandname">ScanFree</span><small>Scan documents. Create PDFs. Completely free.</small></span>
+  </a>
+  <nav class="topnav" aria-label="Site">
+    <a href="help.html">Help</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="terms.html">Terms</a>
+    <button id="btnTheme" aria-label="Toggle dark mode">Dark</button>
+  </nav>
+</header>
+<div id="steps" hidden aria-label="Progress">
+  <span class="step" data-s="0">1 Capture</span><i>-</i>
+  <span class="step" data-s="1">2 Adjust</span><i>-</i>
+  <span class="step" data-s="2">3 Enhance</span><i>-</i>
+  <span class="step" data-s="3">4 Pages</span><i>-</i>
+  <span class="step" data-s="4">5 Export</span>
+</div>
+<main id="main">
+<section id="scrHome" class="screen active" aria-label="Welcome">
+  <div class="hero">
+    <h1>Turn your camera into a free document scanner</h1>
+    <p class="sub">Scan papers, receipts, notes, forms, and documents. Create clean PDFs instantly - without signing up.</p>
+    <div class="cta">
+      <button class="btn primary big" id="btnScan">Scan Document</button>
+      <button class="btn secondary big" id="btnUpload">Upload Image</button>
+    </div>
+    <p class="privacy-pill">Your documents are processed privately in your browser.</p>
+    <ul class="benefits">
+      <li>Fast camera scanning</li>
+      <li>Multi-page PDF</li>
+      <li>Private and free</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h2>How it works</h2>
+    <ol class="how">
+      <li><strong>Capture</strong> - photograph a document with your camera, or upload a photo.</li>
+      <li><strong>Adjust</strong> - ScanFree finds the page edges; drag the corners to fine-tune.</li>
+      <li><strong>Enhance</strong> - pick a filter and tune brightness, contrast, and sharpness.</li>
+      <li><strong>Pages</strong> - add more scans, reorder, rotate, or delete pages.</li>
+      <li><strong>Export</strong> - create a clean PDF and download, share, or print it.</li>
+    </ol>
+  </div>
+  <div class="card">
+    <h2>Frequently asked questions</h2>
+    <details><summary>Is ScanFree really free?</summary><p>Yes - completely. No account, no email, no payment, no subscription, no premium plan, and no watermark on your PDFs.</p></details>
+    <details><summary>Are my documents uploaded anywhere?</summary><p>No. Scanning, cropping, enhancement, and PDF creation all happen locally in your browser. Your documents never leave your device.</p></details>
+    <details><summary>Which devices are supported?</summary><p>Any modern phone, tablet, laptop, or desktop with Chrome, Safari, Edge, Firefox, or an Android browser. Camera scanning needs HTTPS, which this site always uses.</p></details>
+    <details><summary>Can I scan multiple pages into one PDF?</summary><p>Yes - scan or upload as many pages as you like, then reorder, rotate, edit, or delete them before creating one combined PDF.</p></details>
+    <details><summary>Does the PDF contain ads or watermarks?</summary><p>Never. Your PDF contains only your pages.</p></details>
+    <details><summary>Does it work offline?</summary><p>After the first load, yes. Install ScanFree from your browser menu and it works offline too.</p></details>
+  </div>
+  <div class="card">
+    <h2>Private by design</h2>
+    <p>ScanFree has no login, no database, and no document uploads. Temporary scans live only in this browser tab and are erased when your session ends. Read the <a href="privacy.html">Privacy Policy</a> and <a href="terms.html">Terms of Use</a>.</p>
+  </div>
+</section>
+<section id="scrCam" class="screen" aria-label="Capture">
+  <div class="controls" style="justify-content:flex-start">
+    <button class="btn ghost" id="btnCamBack">Back</button>
+  </div>
+  <div class="camwrap">
+    <video id="camVideo" playsinline autoplay muted></video>
+    <canvas id="camOverlay" aria-hidden="true"></canvas>
+    <div class="frame" aria-hidden="true"></div>
+    <p class="camhint" id="camHint">Place the document inside the frame</p>
+    <div class="cammsg" id="camMsg" role="alert" hidden>
+      <h3 id="camMsgTitle">Camera unavailable</h3>
+      <p id="camMsgText"></p>
+      <div class="controls">
+        <button class="btn primary" id="btnCamRetry">Try again</button>
+        <button class="btn secondary" id="btnCamUpload">Upload image instead</button>
+      </div>
+    </div>
+  </div>
+  <div class="controls">
+    <button class="btn ghost" id="btnTorch" aria-pressed="false" hidden>Torch</button>
+    <button class="shutter" id="btnShutter" aria-label="Capture document photo"></button>
+    <button class="btn ghost" id="btnSwitch" aria-label="Switch camera" hidden>Switch camera</button>
+  </div>
+  <div class="controls">
+    <button class="btn secondary" id="btnCamUpload2">Upload image from this device</button>
+  </div>
+  <p class="hint">Tip: fill the frame with the page, avoid shadows, and hold steady. The green outline shows a detected page.</p>
+</section>
+<section id="scrAdjust" class="screen" aria-label="Adjust">
+  <h2 class="screentitle" tabindex="-1" id="adjustTitle">Adjust the corners</h2>
+  <p class="hint">Drag the four circles onto the corners of your document.</p>
+  <div class="canvasbox" id="adjustBox">
+    <canvas id="cvAdjust"></canvas>
+    <button class="handle" data-i="0" aria-label="Top left corner handle"></button>
+    <button class="handle" data-i="1" aria-label="Top right corner handle"></button>
+    <button class="handle" data-i="2" aria-label="Bottom right corner handle"></button>
+    <button class="handle" data-i="3" aria-label="Bottom left corner handle"></button>
+  </div>
+  <div class="controls">
+    <button class="btn" id="btnAuto">Auto detect</button>
+    <button class="btn" id="btnResetC">Reset corners</button>
+  </div>
+  <div class="controls">
+    <button class="btn" id="btnRetakeA">Retake photo</button>
+    <button class="btn primary big" id="btnConfirm">Confirm Crop</button>
+  </div>
+</section>
+<section id="scrEnhance" class="screen" aria-label="Enhance">
+  <h2 class="screentitle" tabindex="-1" id="enhTitle">Enhance the page</h2>
+  <div class="canvasbox"><canvas id="cvEnh"></canvas></div>
+  <div class="chips" role="group" aria-label="Page filters">
+    <button data-f="original" aria-pressed="false">Original</button>
+    <button data-f="auto" aria-pressed="false">Auto Enhance</button>
+    <button data-f="document" aria-pressed="false">Document</button>
+    <button data-f="bw" aria-pressed="false">Black and White</button>
+    <button data-f="gray" aria-pressed="false">Grayscale</button>
+    <button data-f="color" aria-pressed="false">Color</button>
+  </div>
+  <div class="sliders">
+    <div class="sl"><label for="sBright">Brightness</label><input type="range" id="sBright" min="-50" max="50" value="0"><span id="vBright">0</span></div>
+    <div class="sl"><label for="sContrast">Contrast</label><input type="range" id="sContrast" min="-50" max="50" value="0"><span id="vContrast">0</span></div>
+    <div class="sl"><label for="sSharp">Sharpness</label><input type="range" id="sSharp" min="0" max="50" value="0"><span id="vSharp">0</span></div>
+  </div>
+  <div class="controls">
+    <button class="btn" id="btnRot">Rotate 90</button>
+    <button class="btn" id="btnResetE">Reset edits</button>
+    <button class="btn" id="btnCrop">Recrop</button>
+  </div>
+  <div class="controls">
+    <button class="btn" id="btnRetakeE">Retake page</button>
+    <button class="btn primary big" id="btnContinue">Continue</button>
+  </div>
+</section>
+<section id="scrPages" class="screen" aria-label="Pages">
+  <h2 class="screentitle" tabindex="-1" id="pagesTitle">Your pages</h2>
+  <p id="pageCount" aria-live="polite">0 pages</p>
+  <p id="pagesEmpty">No pages yet. Scan or upload to add your first page.</p>
+  <div class="grid" id="pagesGrid"></div>
+  <div class="controls">
+    <button class="btn secondary" id="btnAddScan">Add page with camera</button>
+    <button class="btn" id="btnAddUpload">Upload page</button>
+  </div>
+  <div class="controls">
+    <button class="btn danger" id="btnStartOver">Start Over</button>
+    <button class="btn primary big" id="btnToPreview">Preview and Export</button>
+  </div>
+  <p class="hint">Drag a thumbnail to reorder, or use the move buttons.</p>
+</section>
+<section id="scrPreview" class="screen" aria-label="Export">
+  <h2 class="screentitle" tabindex="-1" id="previewTitle">Preview and export</h2>
+  <div class="previews" id="previewStack"></div>
+  <div class="opts">
+    <label for="docName">Document name
+      <input type="text" id="docName" maxlength="60" autocomplete="off">
+    </label>
+    <label for="pageSize">Page size
+      <select id="pageSize">
+        <option value="auto" selected>Automatic</option>
+        <option value="a4">A4</option>
+        <option value="letter">Letter</option>
+      </select>
+    </label>
+    <label for="pdfQuality">PDF quality
+      <select id="pdfQuality">
+        <option value="standard" selected>Standard (smaller file)</option>
+        <option value="high">High (sharper text)</option>
+      </select>
+    </label>
+  </div>
+  <div class="controls">
+    <button class="btn" id="btnBackEdit">Back to pages</button>
+    <button class="btn primary big" id="btnCreatePdf">Create PDF</button>
+  </div>
+  <p class="hint">Free forever. No watermark. No sign-up.</p>
+</section>
+<section id="scrDone" class="screen" aria-label="PDF ready">
+  <div class="success-head">
+    <h2 tabindex="-1" id="doneTitle">Your PDF is ready</h2>
+    <p class="hint" id="doneInfo"></p>
+  </div>
+  <div class="previews" id="donePreview"></div>
+  <div class="opts">
+    <label for="doneName">Rename document
+      <input type="text" id="doneName" maxlength="60" autocomplete="off">
+    </label>
+  </div>
+  <div class="controls">
+    <button class="btn primary big" id="btnDownload">Download PDF</button>
+    <button class="btn" id="btnShare">Share PDF</button>
+    <button class="btn" id="btnPrint">Print PDF</button>
+  </div>
+  <div class="controls">
+    <button class="btn ghost" id="btnNewScan">Start new scan</button>
+  </div>
+</section>
+</main>
+<footer>
+  <p class="tag">ScanFree - Scan documents. Create PDFs. Completely free.</p>
+  <p><a href="help.html">Help</a><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Use</a></p>
+  <p>Your documents are processed privately in your browser and never uploaded.</p>
+</footer>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modalbox">
+    <h3 id="modalTitle"></h3>
+    <p id="modalText"></p>
+    <div class="modalbtns">
+      <button class="btn" id="modalCancel">Cancel</button>
+      <button class="btn primary" id="modalOk">OK</button>
+    </div>
+  </div>
+</div>
+<div id="busy" hidden>
+  <div class="busybox"><div class="spinner" aria-hidden="true"></div><span id="busyText">Working...</span></div>
+</div>
+<input type="file" id="fileInput" accept="image/jpeg,image/jpg,image/png,image/webp" multiple hidden>
+<script src="core.js"></script>
+<script src="app.js"></script>
+<script src="upload.js"></script>
+<script src="edit.js"></script>
+<script src="pdf.js"></script>
+</body>
+</html>
